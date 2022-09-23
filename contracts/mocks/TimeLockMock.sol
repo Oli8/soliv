@@ -1,0 +1,11 @@
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.0;
+
+import "../access/TimeLock.sol";
+
+contract TimeLockMock is TimeLock {
+    constructor() TimeLock(3 days) {}
+
+    function timeLockedAction() public onlyUnlocked {}
+}
