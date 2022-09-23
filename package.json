@@ -1,0 +1,29 @@
+{
+  "name": "soliv",
+  "version": "1.0.0",
+  "description": "smart contracts utilities",
+  "files": [
+    "/contracts/**/*.sol",
+    "!/contracts/mocks/**/*"
+  ],
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "truffle test",
+    "lint": "solhint contracts/**.sol"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Oli8/soliv.git"
+  },
+  "author": "Olivier Crété",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Oli8/soliv/issues"
+  },
+  "homepage": "https://github.com/Oli8/soliv#readme",
+  "devDependencies": {
+    "@openzeppelin/test-helpers": "^0.5.16"
+  }
+}
