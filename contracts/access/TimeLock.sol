@@ -17,6 +17,16 @@ abstract contract TimeLock {
         _timeLockDuration = timeLockDuration;
     }
 
+    modifier onlyUnlocked() {
+        address caller = msg.sender;
+        require(
+            !isLocked(caller),
+            "TimeLock: Account under timelock"
+        );
+        _timeLocks[caller] = _now() + _timeLockDuration;
+        _;
+    }
+
     function duration() public view returns (uint256) {
         return _timeLockDuration;
     }
@@ -43,16 +53,6 @@ abstract contract TimeLock {
 
     function clear(address user) public virtual {
         _timeLocks[user] = 0;
-    }
-
-    modifier onlyUnlocked() {
-        address caller = msg.sender;
-        require(
-            !isLocked(caller),
-            "TimeLock: Account under timelock"
-        );
-        _timeLocks[caller] = _now() + _timeLockDuration;
-        _;
     }
 
     function _now() private view returns (uint256) {
