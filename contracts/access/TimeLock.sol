@@ -8,7 +8,6 @@ abstract contract TimeLock {
     mapping(address => uint256) private _timeLocks;
 
     event DurationChanged(
-        address indexed from,
         uint256 previousDuration,
         uint256 newDuration
     );
@@ -48,7 +47,7 @@ abstract contract TimeLock {
     function _setDuration(uint256 newDuration) internal {
         uint256 previousDuration = _timeLockDuration;
         _timeLockDuration = newDuration;
-        emit DurationChanged(msg.sender, previousDuration, newDuration);
+        emit DurationChanged(previousDuration, newDuration);
     }
 
     function _clear(address user) internal {

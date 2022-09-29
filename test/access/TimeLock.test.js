@@ -67,7 +67,6 @@ contract('TimeLock', ([alice]) => {
         durationChange,
         'DurationChanged',
         {
-          from: alice,
           previousDuration: defaultDuration,
           newDuration: newDurationBN,
         }
