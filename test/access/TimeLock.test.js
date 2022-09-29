@@ -77,8 +77,7 @@ contract('TimeLock', ([alice]) => {
       await contract.timeLockedAction(from(alice))
       await time.increase(time.duration.days(2))
       const releaseTime = (await contract.releaseTime(alice)).toNumber()
-
-      expect(releaseTime).to.equal(time.duration.days(1).toNumber())
+      expect(releaseTime).to.be.closeTo(time.duration.days(1).toNumber(), 3)
     })
 
     it('should return 0 if user has never been locked', async () => {
