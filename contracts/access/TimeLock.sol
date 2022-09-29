@@ -51,7 +51,7 @@ abstract contract TimeLock {
         emit DurationChanged(msg.sender, previousDuration, newDuration);
     }
 
-    function clear(address user) public virtual {
+    function _clear(address user) internal {
         _timeLocks[user] = 0;
     }
 

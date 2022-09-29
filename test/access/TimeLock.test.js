@@ -99,7 +99,7 @@ contract('TimeLock', ([alice]) => {
 
   it('should clear user time lock', async () => {
     await contract.timeLockedAction(from(alice))
-    await contract.clear(alice)
+    await contract.clearUserTimeLock(alice)
     const isLocked = await contract.isLocked(alice)
 
     expect(isLocked).to.be.false

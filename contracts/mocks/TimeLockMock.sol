@@ -12,4 +12,8 @@ contract TimeLockMock is TimeLock {
     function setTimeLockDuration(uint256 newDuration) public {
         _setDuration(newDuration);
     }
+
+    function clearUserTimeLock(address user) public {
+        _clear(user);
+    }
 }
