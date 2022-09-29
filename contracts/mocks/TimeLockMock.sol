@@ -8,4 +8,8 @@ contract TimeLockMock is TimeLock {
     constructor() TimeLock(3 days) {}
 
     function timeLockedAction() public onlyUnlocked {}
+
+    function setTimeLockDuration(uint256 newDuration) public {
+        _setDuration(newDuration);
+    }
 }

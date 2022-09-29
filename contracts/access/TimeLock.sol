@@ -45,7 +45,7 @@ abstract contract TimeLock {
         return _now() <= _timeLocks[user];
     }
 
-    function setTimeLockDuration(uint256 newDuration) public virtual {
+    function _setDuration(uint256 newDuration) internal {
         uint256 previousDuration = _timeLockDuration;
         _timeLockDuration = newDuration;
         emit DurationChanged(msg.sender, previousDuration, newDuration);

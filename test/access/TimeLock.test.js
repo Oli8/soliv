@@ -50,23 +50,26 @@ contract('TimeLock', ([alice]) => {
   })
 
   context('update duration', async () => {
+    let newDurationBN, newDuration, durationChange
+    beforeEach(async () => {
+      newDurationBN = time.duration.days(10)
+      newDuration = newDurationBN.toNumber()
+      durationChange = await contract.setTimeLockDuration(newDuration)
+    })
+
     it('should be possible to update duration', async () => {
-      const newDuration = time.duration.days(10).toNumber()
-      await contract.setTimeLockDuration(newDuration)
       const durationFetched = (await contract.duration()).toNumber()
       expect(durationFetched).to.equal(newDuration)
     })
 
     it('should emit event on duration change', async () => {
-      const newDuration = time.duration.days(10)
-      const durationChange = await contract.setTimeLockDuration(newDuration.toNumber())
       expectEvent(
         durationChange,
         'DurationChanged',
         {
           from: alice,
           previousDuration: defaultDuration,
-          newDuration,
+          newDuration: newDurationBN,
         }
       )
     })
