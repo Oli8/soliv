@@ -7,7 +7,7 @@ const { expectPass, from } = require('../helpers')
 
 const TimeLock = artifacts.require('TimeLockMock')
 
-contract('TimeLock', ([alice]) => {
+contract('TimeLock', ([alice, bob]) => {
   const defaultDuration = time.duration.days(3)
   let contract
 
@@ -93,6 +93,24 @@ contract('TimeLock', ([alice]) => {
       const releaseTime = (await contract.releaseTime(alice)).toNumber()
 
       expect(releaseTime).to.eq(0)
+    })
+  })
+
+  context('lock function', async () => {
+    beforeEach(async () => {
+      await contract.lockUser(bob)
+    })
+
+    it('should lock user', async () => {
+      const isLocked = await contract.isLocked(bob)
+      expect(isLocked).to.be.true
+    })
+
+    it('should prevent user form performing time locked action', async () => {
+      await expectRevert(
+        contract.timeLockedAction(from(bob)),
+        'TimeLock: Account under timelock'
+      )
     })
   })
 

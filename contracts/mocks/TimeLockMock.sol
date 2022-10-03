@@ -16,4 +16,8 @@ contract TimeLockMock is TimeLock {
     function clearUserTimeLock(address user) public {
         _clear(user);
     }
+
+    function lockUser(address user) public {
+        _lock(user);
+    }
 }

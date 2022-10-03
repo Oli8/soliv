@@ -22,7 +22,7 @@ abstract contract TimeLock {
             !isLocked(caller),
             "TimeLock: Account under timelock"
         );
-        _timeLocks[caller] = _now() + _timeLockDuration;
+        _lock(caller);
         _;
     }
 
@@ -42,6 +42,10 @@ abstract contract TimeLock {
 
     function isLocked(address user) public view returns (bool) {
         return _now() <= _timeLocks[user];
+    }
+
+    function _lock(address user) internal {
+        _timeLocks[user] = _now() + _timeLockDuration;
     }
 
     function _setDuration(uint256 newDuration) internal {
