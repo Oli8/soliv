@@ -4,6 +4,7 @@
     "compiler-version": ["error", "^0.8.0"],
     "not-rely-on-time": "off",
     "func-visibility": ["warn", { "ignoreConstructors": true }],
-    "reason-string": ["warn", { "maxLength" : 40 }]
+    "reason-string": ["warn", { "maxLength" : 40 }],
+    "no-empty-blocks": "off"
   }
 }

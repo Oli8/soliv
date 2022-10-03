@@ -7,7 +7,7 @@ const { expectPass, from } = require('../helpers')
 
 const TimeLock = artifacts.require('TimeLockMock')
 
-contract('TimeLock', ([alice]) => {
+contract('TimeLock', ([alice, bob]) => {
   const defaultDuration = time.duration.days(3)
   let contract
 
@@ -50,23 +50,25 @@ contract('TimeLock', ([alice]) => {
   })
 
   context('update duration', async () => {
+    let newDurationBN, newDuration, durationChange
+    beforeEach(async () => {
+      newDurationBN = time.duration.days(10)
+      newDuration = newDurationBN.toNumber()
+      durationChange = await contract.setTimeLockDuration(newDuration)
+    })
+
     it('should be possible to update duration', async () => {
-      const newDuration = time.duration.days(10).toNumber()
-      await contract.setTimeLockDuration(newDuration)
       const durationFetched = (await contract.duration()).toNumber()
       expect(durationFetched).to.equal(newDuration)
     })
 
     it('should emit event on duration change', async () => {
-      const newDuration = time.duration.days(10)
-      const durationChange = await contract.setTimeLockDuration(newDuration.toNumber())
       expectEvent(
         durationChange,
         'DurationChanged',
         {
-          from: alice,
           previousDuration: defaultDuration,
-          newDuration,
+          newDuration: newDurationBN,
         }
       )
     })
@@ -77,8 +79,7 @@ contract('TimeLock', ([alice]) => {
       await contract.timeLockedAction(from(alice))
       await time.increase(time.duration.days(2))
       const releaseTime = (await contract.releaseTime(alice)).toNumber()
-
-      expect(releaseTime).to.equal(time.duration.days(1).toNumber())
+      expect(releaseTime).to.be.closeTo(time.duration.days(1).toNumber(), 3)
     })
 
     it('should return 0 if user has never been locked', async () => {
@@ -95,9 +96,27 @@ contract('TimeLock', ([alice]) => {
     })
   })
 
+  context('lock function', async () => {
+    beforeEach(async () => {
+      await contract.lockUser(bob)
+    })
+
+    it('should lock user', async () => {
+      const isLocked = await contract.isLocked(bob)
+      expect(isLocked).to.be.true
+    })
+
+    it('should prevent user form performing time locked action', async () => {
+      await expectRevert(
+        contract.timeLockedAction(from(bob)),
+        'TimeLock: Account under timelock'
+      )
+    })
+  })
+
   it('should clear user time lock', async () => {
     await contract.timeLockedAction(from(alice))
-    await contract.clear(alice)
+    await contract.clearUserTimeLock(alice)
     const isLocked = await contract.isLocked(alice)
 
     expect(isLocked).to.be.false

@@ -8,13 +8,22 @@ abstract contract TimeLock {
     mapping(address => uint256) private _timeLocks;
 
     event DurationChanged(
-        address indexed from,
         uint256 previousDuration,
         uint256 newDuration
     );
 
     constructor(uint256 timeLockDuration) {
         _timeLockDuration = timeLockDuration;
+    }
+
+    modifier onlyUnlocked() {
+        address caller = msg.sender;
+        require(
+            !isLocked(caller),
+            "TimeLock: Account under timelock"
+        );
+        _lock(caller);
+        _;
     }
 
     function duration() public view returns (uint256) {
@@ -35,24 +44,18 @@ abstract contract TimeLock {
         return _now() <= _timeLocks[user];
     }
 
-    function setTimeLockDuration(uint256 newDuration) public virtual {
+    function _lock(address user) internal {
+        _timeLocks[user] = _now() + _timeLockDuration;
+    }
+
+    function _setDuration(uint256 newDuration) internal {
         uint256 previousDuration = _timeLockDuration;
         _timeLockDuration = newDuration;
-        emit DurationChanged(msg.sender, previousDuration, newDuration);
+        emit DurationChanged(previousDuration, newDuration);
     }
 
-    function clear(address user) public virtual {
+    function _clear(address user) internal {
         _timeLocks[user] = 0;
-    }
-
-    modifier onlyUnlocked() {
-        address caller = msg.sender;
-        require(
-            !isLocked(caller),
-            "TimeLock: Account under timelock"
-        );
-        _timeLocks[caller] = _now() + _timeLockDuration;
-        _;
     }
 
     function _now() private view returns (uint256) {
