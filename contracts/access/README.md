@@ -7,9 +7,11 @@
 Provides a way to limit access to time locked function.\
 E.g. a user can only call a function once in a 3 days span.
 
-/!\ Be wary that this contract uses `block.timestamp` and its value can be manipulated by miners.\
+**/!\\ Warning:** Be wary that this contract uses `block.timestamp` and its value can be manipulated by miners.\
 Therefore a duration under 15 minutes should be avoided for non trivial actions.
 
+**Limitations**: Each `timeLocked` function will share the same locking mechanism.\
+Another contract is planned to handle a more complex way of authorization
 
 ```solidity
 pragma solidity ^0.8.0;
