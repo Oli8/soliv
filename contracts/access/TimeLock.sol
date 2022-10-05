@@ -16,7 +16,7 @@ abstract contract TimeLock {
         _timeLockDuration = timeLockDuration;
     }
 
-    modifier onlyUnlocked() {
+    modifier timeLocked() {
         address caller = msg.sender;
         require(
             !isLocked(caller),
