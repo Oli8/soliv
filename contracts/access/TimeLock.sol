@@ -13,7 +13,7 @@ abstract contract TimeLock {
     );
 
     constructor(uint256 timeLockDuration) {
-        _timeLockDuration = timeLockDuration;
+        _setDuration(timeLockDuration);
     }
 
     modifier timeLocked() {
