@@ -60,16 +60,17 @@ contract('TimeLockGroups', ([alice, bob]) => {
 
       it('should allow user to recall function after enough time has passed', async () => {
         await contract.voteBan(from(alice))
-        // TODO: is there other one ?
-        await time.increase(time.duration.days(3)) // changed to 3
+        await time.increase(time.duration.days(3))
         const newAction = await contract.voteBan(from(alice))
+
         expectPass(newAction)
       })
 
       it('should allow user to recall function in same lock after enough time has passed', async () => {
         await contract.createProposal(from(alice))
-        await time.increase(time.duration.days(3)) // changed to 3
+        await time.increase(time.duration.days(3))
         const newAction = await contract.voteBan(from(alice))
+
         expectPass(newAction)
       })
     })
@@ -77,6 +78,7 @@ contract('TimeLockGroups', ([alice, bob]) => {
     it('should allow user to call function in another lock after being locked in one', async () => {
       await contract.createProposal(from(alice))
       const newAction = await contract.approve(from(alice))
+
       expectPass(newAction)
     })
 
@@ -111,6 +113,7 @@ contract('TimeLockGroups', ([alice, bob]) => {
       it('should update time needed to recall function', async () => {
         await contract.voteBan(from(alice))
         await time.increase(time.duration.days(4))
+
         await expectRevert(
           contract.createProposal(from(alice)),
           'TimeLock: Account under timelock'
@@ -119,8 +122,9 @@ contract('TimeLockGroups', ([alice, bob]) => {
 
       it('should allow user to recall function after the new duration has passed', async () => {
         await contract.createProposal(from(alice))
-        await time.increase(time.duration.days(10)) // changed from 11 to 10
+        await time.increase(time.duration.days(10))
         const newAction = await contract.voteBan(from(alice))
+
         expectPass(newAction)
       })
     })
@@ -189,7 +193,6 @@ contract('TimeLockGroups', ([alice, bob]) => {
     let action
     beforeEach(async () => {
       action = await contract.action(from(alice))
-      // console.log('before each', action)
     })
 
     it('should allow user to call function', async () => {
@@ -197,17 +200,7 @@ contract('TimeLockGroups', ([alice, bob]) => {
     })
 
     it('should allow user to recall function', async () => {
-      // FIXME:
-      // TODO: check block number ?
-      const lockName = 'pla'
-      const duration = await contract.duration(lockName)
-      const isLocked = await contract.isLocked(lockName, alice)
-      const releaseTime = await contract.releaseTime(lockName, alice)
-      // console.log('duration', duration.toString())
-      // console.log('alice is locked?', isLocked)
-      // console.log('released in', releaseTime.toString())
       const newAction = await contract.action(from(alice))
-      // console.log(newAction)
       expectPass(newAction)
     })
   })
