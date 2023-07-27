@@ -6,8 +6,7 @@ import {TimeLockCommon} from "./TimeLockCommon.sol";
 
 abstract contract TimeLockGroups is TimeLockCommon {
     struct TimeLockData {
-        // FIXME: lower uint?
-        mapping(address => uint256) timeLocks;
+        mapping(address user => uint256 timestamp) timestamps;
         uint256 duration;
     }
     // FIXME: use bytes(32?) (+hash?)?
