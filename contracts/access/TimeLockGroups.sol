@@ -10,46 +10,46 @@ abstract contract TimeLockGroups is TimeLockCommon {
         uint256 duration;
     }
 
-    mapping(bytes32 name => TimeLockData data) private _timeLocks;
+    mapping(bytes32 lockName => TimeLockData data) private _timeLocks;
 
     error LockedUser(bytes32 lockName, address user);
 
     event DurationChanged(
-        bytes32 name,
+        bytes32 lockName,
         uint256 previousDuration,
         uint256 newDuration
     );
 
-    modifier timeLocked(bytes32 name) {
+    modifier timeLocked(bytes32 lockName) {
         address caller = msg.sender;
-        if (isLocked(name, caller)) {
+        if (isLocked(lockName, caller)) {
             revert LockedUser({
-                lockName: name,
+                lockName: lockName,
                 user: caller
             });
         }
-        _lock(name, caller);
+        _lock(lockName, caller);
         _;
     }
 
-    function duration(bytes32 name) public view returns (uint256) {
-        return _timeLocks[name].duration;
+    function duration(bytes32 lockName) public view returns (uint256) {
+        return _timeLocks[lockName].duration;
     }
 
-    function releaseTime(bytes32 name, address user)
+    function releaseTime(bytes32 lockName, address user)
         public
         view
         returns (uint256)
     {
-        return _timeLocks[name].timestamps[user];
+        return _timeLocks[lockName].timestamps[user];
     }
 
-    function lockTimeRemaining(bytes32 name, address user)
+    function lockTimeRemaining(bytes32 lockName, address user)
         public
         view
         returns (uint256)
     {
-        uint256 userLockTime = releaseTime(name, user);
+        uint256 userLockTime = releaseTime(lockName, user);
         uint256 timeNow = _now();
         if (timeNow >= userLockTime) {
             return 0;
@@ -58,22 +58,22 @@ abstract contract TimeLockGroups is TimeLockCommon {
         return userLockTime - timeNow;
     }
 
-    function isLocked(bytes32 name, address user) public view returns (bool) {
-        return _now() < releaseTime(name, user);
+    function isLocked(bytes32 lockName, address user) public view returns (bool) {
+        return _now() < releaseTime(lockName, user);
     }
 
-    function _lock(bytes32 name, address user) internal {
-        _timeLocks[name].timestamps[user] = _now() + duration(name);
+    function _lock(bytes32 lockName, address user) internal {
+        _timeLocks[lockName].timestamps[user] = _now() + duration(lockName);
     }
 
-    function _setDuration(bytes32 name, uint256 newDuration) internal {
-        uint256 previousDuration = duration(name);
-        _timeLocks[name].duration = newDuration;
+    function _setDuration(bytes32 lockName, uint256 newDuration) internal {
+        uint256 previousDuration = duration(lockName);
+        _timeLocks[lockName].duration = newDuration;
 
-        emit DurationChanged(name, previousDuration, newDuration);
+        emit DurationChanged(lockName, previousDuration, newDuration);
     }
 
-    function _clear(bytes32 name, address user) internal {
-        _timeLocks[name].timestamps[user] = 0;
+    function _clear(bytes32 lockName, address user) internal {
+        _timeLocks[lockName].timestamps[user] = 0;
     }
 }

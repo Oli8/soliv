@@ -108,7 +108,7 @@ contract('TimeLockGroups', ([alice, bob]) => {
           durationChange,
           'DurationChanged',
           {
-            name: gouvernanceLockName,
+            lockName: gouvernanceLockName,
             previousDuration: gouvernanceDuration,
             newDuration: newDurationBN,
           }
