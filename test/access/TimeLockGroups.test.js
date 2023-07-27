@@ -3,12 +3,13 @@ const {
   expectRevert,
   expectEvent,
 } = require('@openzeppelin/test-helpers')
+const { expectRevertCustomError } = require('custom-error-test-helper')
 const { expectPass, from } = require('../helpers')
 
 const TimeLockGroups = artifacts.require('TimeLockGroupsMock')
 
 contract('TimeLockGroups', ([alice, bob]) => {
-  const gouvernanceLockName = 'GOUVERNANCE'
+  const gouvernanceLockName = web3.utils.keccak256('GOUVERNANCE')
   const gouvernanceDuration = time.duration.days(3)
   let contract
 

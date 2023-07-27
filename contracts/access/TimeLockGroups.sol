@@ -9,39 +9,42 @@ abstract contract TimeLockGroups is TimeLockCommon {
         mapping(address user => uint256 timestamp) timestamps;
         uint256 duration;
     }
-    // FIXME: use bytes(32?) (+hash?)?
-    mapping(string name => TimeLockData data) private _timeLocks;
+
+    mapping(bytes32 name => TimeLockData data) private _timeLocks;
+
+    error LockedUser(bytes32 lockName, address user);
 
     event DurationChanged(
-        string name,
+        bytes32 name,
         uint256 previousDuration,
         uint256 newDuration
     );
 
-    modifier timeLocked(string memory name) {
-        // TODO: lock name in error msg ?
+    modifier timeLocked(bytes32 name) {
         address caller = msg.sender;
-        require(
-            !isLocked(name, caller),
-            "TimeLock: Account under timelock"
-        );
+        if (isLocked(name, caller)) {
+            revert LockedUser({
+                lockName: name,
+                user: caller
+            });
+        }
         _lock(name, caller);
         _;
     }
 
-    function duration(string memory name) public view returns (uint256) {
+    function duration(bytes32 name) public view returns (uint256) {
         return _timeLocks[name].duration;
     }
 
-    function releaseTime(string memory name, address user)
+    function releaseTime(bytes32 name, address user)
         public
         view
         returns (uint256)
     {
-        return _timeLocks[name].timeLocks[user];
+        return _timeLocks[name].timestamps[user];
     }
 
-    function lockTimeRemaining(string memory name, address user)
+    function lockTimeRemaining(bytes32 name, address user)
         public
         view
         returns (uint256)
@@ -55,23 +58,22 @@ abstract contract TimeLockGroups is TimeLockCommon {
         return userLockTime - timeNow;
     }
 
-    function isLocked(string memory name, address user) public view returns (bool) {
-        // FIXME: <= ??
+    function isLocked(bytes32 name, address user) public view returns (bool) {
         return _now() < releaseTime(name, user);
     }
 
-    function _lock(string memory name, address user) internal {
-        _timeLocks[name].timeLocks[user] = _now() + duration(name);
+    function _lock(bytes32 name, address user) internal {
+        _timeLocks[name].timestamps[user] = _now() + duration(name);
     }
 
-    function _setDuration(string memory name, uint256 newDuration) internal {
+    function _setDuration(bytes32 name, uint256 newDuration) internal {
         uint256 previousDuration = duration(name);
         _timeLocks[name].duration = newDuration;
 
         emit DurationChanged(name, previousDuration, newDuration);
     }
 
-    function _clear(string memory name, address user) internal {
-        _timeLocks[name].timeLocks[user] = 0;
+    function _clear(bytes32 name, address user) internal {
+        _timeLocks[name].timestamps[user] = 0;
     }
 }

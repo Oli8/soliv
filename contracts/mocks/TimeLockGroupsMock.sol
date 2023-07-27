@@ -1,27 +1,27 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import {TimeLockGroups} from "../access/TimeLockGroups.sol";
 
 contract TimeLockGroupsMock is TimeLockGroups {
-    string public constant GOUVERNANCE_LOCK = "GOUVERNANCE";
-    string public constant APPLICATION_LOCK = "APPLICATION";
+    bytes32 public constant GOUVERNANCE_LOCK = keccak256("GOUVERNANCE");
+    bytes32 public constant APPLICATION_LOCK = keccak256("APPLICATION");
 
     constructor() {
         _setDuration(GOUVERNANCE_LOCK, 3 days);
         _setDuration(APPLICATION_LOCK, 1 days);
     }
 
-    function setTimeLockDuration(string memory lockName, uint256 newDuration) public {
+    function setTimeLockDuration(bytes32 lockName, uint256 newDuration) public {
         _setDuration(lockName, newDuration);
     }
 
-    function clearUserTimeLock(string memory lockName, address user) public {
+    function clearUserTimeLock(bytes32 lockName, address user) public {
         _clear(lockName, user);
     }
 
-    function lockUser(string memory lockName, address user) public {
+    function lockUser(bytes32 lockName, address user) public {
         _lock(lockName, user);
     }
 
