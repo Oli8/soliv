@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/Oli8/soliv#readme",
   "devDependencies": {
-    "@openzeppelin/test-helpers": "^0.5.16"
+    "@openzeppelin/test-helpers": "^0.5.16",
+    "custom-error-test-helper": "^1.0.6"
   }
 }

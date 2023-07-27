@@ -45,17 +45,21 @@ contract('TimeLockGroups', ([alice, bob]) => {
     context('recall', async () => {
       it('should prevent user from recalling function too soon', async () => {
         await contract.createProposal(from(alice))
-        await expectRevert(
+        await expectRevertCustomError(
+          TimeLockGroups,
           contract.createProposal(from(alice)),
-          'TimeLock: Account under timelock'
+          'LockedUser',
+          [gouvernanceLockName, alice]
         )
       })
 
       it('should prevent user from recalling function in same lock too soon', async () => {
         await contract.createProposal(from(alice))
-        await expectRevert(
+        await expectRevertCustomError(
+          TimeLockGroups,
           contract.voteBan(from(alice)),
-          'TimeLock: Account under timelock'
+          'LockedUser',
+          [gouvernanceLockName, alice]
         )
       })
 
@@ -115,9 +119,11 @@ contract('TimeLockGroups', ([alice, bob]) => {
         await contract.voteBan(from(alice))
         await time.increase(time.duration.days(4))
 
-        await expectRevert(
+        await expectRevertCustomError(
+          TimeLockGroups,
           contract.createProposal(from(alice)),
-          'TimeLock: Account under timelock'
+          'LockedUser',
+          [gouvernanceLockName, alice]
         )
       })
 
@@ -174,9 +180,11 @@ contract('TimeLockGroups', ([alice, bob]) => {
       })
 
       it('should prevent user form performing time locked action', async () => {
-        await expectRevert(
+        await expectRevertCustomError(
+          TimeLockGroups,
           contract.voteBan(from(bob)),
-          'TimeLock: Account under timelock'
+          'LockedUser',
+          [gouvernanceLockName, bob]
         )
       })
     })
