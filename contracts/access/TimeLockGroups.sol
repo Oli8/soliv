@@ -15,7 +15,7 @@ abstract contract TimeLockGroups is TimeLockCommon {
     error LockedUser(bytes32 lockName, address user);
 
     event DurationChanged(
-        bytes32 lockName,
+        bytes32 indexed lockName,
         uint256 previousDuration,
         uint256 newDuration
     );
