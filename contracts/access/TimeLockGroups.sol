@@ -63,7 +63,7 @@ abstract contract TimeLockGroups is TimeLockCommon {
     }
 
     function _lock(bytes32 lockName, address user) internal {
-        _timeLocks[lockName].timestamps[user] = _now() + duration(lockName);
+        _setUserLockTime(lockName, user, _now() + duration(lockName));
     }
 
     function _setDuration(bytes32 lockName, uint256 newDuration) internal {
@@ -74,6 +74,12 @@ abstract contract TimeLockGroups is TimeLockCommon {
     }
 
     function _clear(bytes32 lockName, address user) internal {
-        _timeLocks[lockName].timestamps[user] = 0;
+        _setUserLockTime(lockName, user, 0);
+    }
+
+    function _setUserLockTime(bytes32 lockName, address user, uint256 timestamp)
+        internal
+    {
+        _timeLocks[lockName].timestamps[user] = timestamp;
     }
 }
