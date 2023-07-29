@@ -170,8 +170,9 @@ contract('TimeLockGroups', ([alice, bob]) => {
     })
 
     context('lock function', async () => {
+      let userLocking
       beforeEach(async () => {
-        await contract.lockUser(gouvernanceLockName, bob)
+        userLocking = await contract.lockUser(gouvernanceLockName, bob)
       })
 
       it('should lock user', async () => {
@@ -185,6 +186,17 @@ contract('TimeLockGroups', ([alice, bob]) => {
           contract.voteBan(from(bob)),
           'LockedUser',
           [gouvernanceLockName, bob]
+        )
+      })
+
+      it('should emit event on user lock time change', async () => {
+        expectEvent(
+          userLocking,
+          'UserLockTimeChanged',
+          {
+            lockName: gouvernanceLockName,
+            user: bob,
+          }
         )
       })
     })

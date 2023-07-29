@@ -19,6 +19,11 @@ abstract contract TimeLockGroups is TimeLockCommon {
         uint256 previousDuration,
         uint256 newDuration
     );
+    event UserLockTimeChanged(
+        bytes32 indexed lockName,
+        address indexed user,
+        uint256 timestamp
+    );
 
     modifier timeLocked(bytes32 lockName) {
         address caller = msg.sender;
@@ -81,5 +86,6 @@ abstract contract TimeLockGroups is TimeLockCommon {
         internal
     {
         _timeLocks[lockName].timestamps[user] = timestamp;
+        emit UserLockTimeChanged(lockName, user, timestamp);
     }
 }
