@@ -20,6 +20,11 @@ contract('TimeLock', ([alice, bob]) => {
     expect(duration.toNumber()).to.equal(defaultDuration.toNumber())
   })
 
+  it('should allow user to call time locked function the first time', async () => {
+    const action = await contract.timeLockedAction(from(alice))
+    expectPass(action)
+  })
+
   context('locking', async () => {
     it("shouldn't lock user before any function call", async () => {
       const isLocked = await contract.isLocked(alice)
@@ -74,6 +79,30 @@ contract('TimeLock', ([alice, bob]) => {
           newDuration: newDurationBN,
         }
       )
+    })
+
+    context('recall after duration update', async () => {
+      beforeEach(async () => {
+        await contract.timeLockedAction(from(alice))
+      })
+
+      it('should update time needed to recall function', async () => {
+        await time.increase(time.duration.days(4))
+
+        await expectRevertCustomError(
+          TimeLock,
+          contract.timeLockedAction(from(alice)),
+          'LockedUser',
+          [alice]
+        )
+      })
+
+      it('should allow user to recall function after the new duration has passed', async () => {
+        await time.increase(time.duration.days(10))
+        const newAction = await contract.timeLockedAction(from(alice))
+
+        expectPass(newAction)
+      })
     })
   })
 
