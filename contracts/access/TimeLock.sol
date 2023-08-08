@@ -9,6 +9,8 @@ abstract contract TimeLock is TimeLockCommon {
 
     mapping(address user => uint256 timestamp) private _timeLocks;
 
+    error LockedUser(address user);
+
     event DurationChanged(
         uint256 previousDuration,
         uint256 newDuration
@@ -20,10 +22,9 @@ abstract contract TimeLock is TimeLockCommon {
 
     modifier timeLocked() {
         address caller = msg.sender;
-        require(
-            !isLocked(caller),
-            "TimeLock: Account under timelock"
-        );
+        if (isLocked(caller)) {
+            revert LockedUser(caller);
+        }
         _lock(caller);
         _;
     }

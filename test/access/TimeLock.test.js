@@ -1,8 +1,8 @@
 const {
   time,
-  expectRevert,
   expectEvent,
 } = require('@openzeppelin/test-helpers')
+const { expectRevertCustomError } = require('custom-error-test-helper')
 const { expectPass, from } = require('../helpers')
 
 const TimeLock = artifacts.require('TimeLockMock')
@@ -36,9 +36,11 @@ contract('TimeLock', ([alice, bob]) => {
 
   it('should prevent user from recalling function too soon', async () => {
     await contract.timeLockedAction(from(alice))
-    await expectRevert(
+    await expectRevertCustomError(
+      TimeLock,
       contract.timeLockedAction(from(alice)),
-      'TimeLock: Account under timelock'
+      'LockedUser',
+      [alice]
     )
   })
 
@@ -109,9 +111,11 @@ contract('TimeLock', ([alice, bob]) => {
     })
 
     it('should prevent user form performing time locked action', async () => {
-      await expectRevert(
+      await expectRevertCustomError(
+        TimeLock,
         contract.timeLockedAction(from(bob)),
-        'TimeLock: Account under timelock'
+        'LockedUser',
+        [bob]
       )
     })
   })
