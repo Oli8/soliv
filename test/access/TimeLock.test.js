@@ -101,8 +101,9 @@ contract('TimeLock', ([alice, bob]) => {
   })
 
   context('lock function', async () => {
+    let userLocking
     beforeEach(async () => {
-      await contract.lockUser(bob)
+      userLocking = await contract.lockUser(bob)
     })
 
     it('should lock user', async () => {
@@ -116,6 +117,14 @@ contract('TimeLock', ([alice, bob]) => {
         contract.timeLockedAction(from(bob)),
         'LockedUser',
         [bob]
+      )
+    })
+
+    it('should emit event on user lock time change', async () => {
+      expectEvent(
+        userLocking,
+        'UserLockTimeChanged',
+        { user: bob }
       )
     })
   })

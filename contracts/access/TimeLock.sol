@@ -15,6 +15,10 @@ abstract contract TimeLock is TimeLockCommon {
         uint256 previousDuration,
         uint256 newDuration
     );
+    event UserLockTimeChanged(
+        address indexed user,
+        uint256 timestamp
+    );
 
     constructor(uint256 timeLockDuration) {
         _setDuration(timeLockDuration);
@@ -52,7 +56,7 @@ abstract contract TimeLock is TimeLockCommon {
     }
 
     function _lock(address user) internal {
-        _timeLocks[user] = _now() + _timeLockDuration;
+        _setUserLockTime(user, _now() + _timeLockDuration);
     }
 
     function _setDuration(uint256 newDuration) internal {
@@ -63,6 +67,11 @@ abstract contract TimeLock is TimeLockCommon {
     }
 
     function _clear(address user) internal {
-        _timeLocks[user] = 0;
+        _setUserLockTime(user, 0);
+    }
+
+    function _setUserLockTime(address user, uint256 timestamp) internal {
+        _timeLocks[user] = timestamp;
+        emit UserLockTimeChanged(user, timestamp);
     }
 }
