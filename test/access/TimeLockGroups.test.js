@@ -1,6 +1,5 @@
 const {
   time,
-  expectRevert,
   expectEvent,
 } = require('@openzeppelin/test-helpers')
 const { expectRevertCustomError } = require('custom-error-test-helper')
