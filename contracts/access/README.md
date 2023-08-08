@@ -14,9 +14,9 @@ Therefore a duration under 15 minutes should be avoided for non trivial actions.
 You may use [TimeLockGroups](TimeLockGroups.sol) for that purpose.
 
 ```solidity
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
-import "soliv/contracts/access/TimeLock.sol";
+import {TimeLock} "soliv/contracts/access/TimeLock.sol";
 
 contract SharedVault is TimeLock {
     constructor() TimeLock(3 days) {}

@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
-abstract contract TimeLock {
+import {TimeLockCommon} from "./TimeLockCommon.sol";
+
+abstract contract TimeLock is TimeLockCommon {
     uint256 private _timeLockDuration;
 
-    mapping(address => uint256) private _timeLocks;
+    mapping(address user => uint256 timestamp) private _timeLocks;
 
     event DurationChanged(
         uint256 previousDuration,
@@ -31,7 +33,11 @@ abstract contract TimeLock {
     }
 
     function releaseTime(address user) public view returns (uint256) {
-        uint256 userLockTime = _timeLocks[user];
+        return _timeLocks[user];
+    }
+
+    function lockTimeRemaining(address user) public view returns (uint256) {
+        uint256 userLockTime = releaseTime(user);
         uint256 timeNow = _now();
         if (timeNow >= userLockTime) {
             return 0;
@@ -41,7 +47,7 @@ abstract contract TimeLock {
     }
 
     function isLocked(address user) public view returns (bool) {
-        return _now() <= _timeLocks[user];
+        return _now() < releaseTime(user);
     }
 
     function _lock(address user) internal {
@@ -51,14 +57,11 @@ abstract contract TimeLock {
     function _setDuration(uint256 newDuration) internal {
         uint256 previousDuration = _timeLockDuration;
         _timeLockDuration = newDuration;
+
         emit DurationChanged(previousDuration, newDuration);
     }
 
     function _clear(address user) internal {
         _timeLocks[user] = 0;
-    }
-
-    function _now() private view returns (uint256) {
-        return block.timestamp;
     }
 }

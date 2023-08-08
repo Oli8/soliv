@@ -44,8 +44,9 @@ contract('TimeLock', ([alice, bob]) => {
 
   it('should allow user to recall function after enough time has passed', async () => {
     await contract.timeLockedAction(from(alice))
-    await time.increase(time.duration.days(4))
+    await time.increase(time.duration.days(3))
     const newAction = await contract.timeLockedAction(from(alice))
+
     expectPass(newAction)
   })
 
@@ -74,23 +75,24 @@ contract('TimeLock', ([alice, bob]) => {
     })
   })
 
-  context('release time', async () => {
+  context('lock time remaining', async () => {
     it('should return time before unlocking', async () => {
       await contract.timeLockedAction(from(alice))
       await time.increase(time.duration.days(2))
-      const releaseTime = (await contract.releaseTime(alice)).toNumber()
+      const releaseTime = (await contract.lockTimeRemaining(alice)).toNumber()
+
       expect(releaseTime).to.be.closeTo(time.duration.days(1).toNumber(), 3)
     })
 
     it('should return 0 if user has never been locked', async () => {
-      const releaseTime = (await contract.releaseTime(alice)).toNumber()
+      const releaseTime = (await contract.lockTimeRemaining(alice)).toNumber()
       expect(releaseTime).to.eq(0)
     })
 
     it('should return 0 if user has been unlocked', async () => {
       await contract.timeLockedAction(from(alice))
       await time.increase(time.duration.days(4))
-      const releaseTime = (await contract.releaseTime(alice)).toNumber()
+      const releaseTime = (await contract.lockTimeRemaining(alice)).toNumber()
 
       expect(releaseTime).to.eq(0)
     })
