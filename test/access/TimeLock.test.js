@@ -1,8 +1,8 @@
 const {
   time,
-  expectRevert,
   expectEvent,
 } = require('@openzeppelin/test-helpers')
+const { expectRevertCustomError } = require('custom-error-test-helper')
 const { expectPass, from } = require('../helpers')
 
 const TimeLock = artifacts.require('TimeLockMock')
@@ -18,6 +18,11 @@ contract('TimeLock', ([alice, bob]) => {
   it('has a duration', async () => {
     const duration = await contract.duration()
     expect(duration.toNumber()).to.equal(defaultDuration.toNumber())
+  })
+
+  it('should allow user to call time locked function the first time', async () => {
+    const action = await contract.timeLockedAction(from(alice))
+    expectPass(action)
   })
 
   context('locking', async () => {
@@ -36,16 +41,19 @@ contract('TimeLock', ([alice, bob]) => {
 
   it('should prevent user from recalling function too soon', async () => {
     await contract.timeLockedAction(from(alice))
-    await expectRevert(
+    await expectRevertCustomError(
+      TimeLock,
       contract.timeLockedAction(from(alice)),
-      'TimeLock: Account under timelock'
+      'LockedUser',
+      [alice]
     )
   })
 
   it('should allow user to recall function after enough time has passed', async () => {
     await contract.timeLockedAction(from(alice))
-    await time.increase(time.duration.days(4))
+    await time.increase(time.duration.days(3))
     const newAction = await contract.timeLockedAction(from(alice))
+
     expectPass(newAction)
   })
 
@@ -72,33 +80,59 @@ contract('TimeLock', ([alice, bob]) => {
         }
       )
     })
+
+    context('recall after duration update', async () => {
+      beforeEach(async () => {
+        await contract.timeLockedAction(from(alice))
+      })
+
+      it('should update time needed to recall function', async () => {
+        await time.increase(time.duration.days(4))
+
+        await expectRevertCustomError(
+          TimeLock,
+          contract.timeLockedAction(from(alice)),
+          'LockedUser',
+          [alice]
+        )
+      })
+
+      it('should allow user to recall function after the new duration has passed', async () => {
+        await time.increase(time.duration.days(10))
+        const newAction = await contract.timeLockedAction(from(alice))
+
+        expectPass(newAction)
+      })
+    })
   })
 
-  context('release time', async () => {
+  context('lock time remaining', async () => {
     it('should return time before unlocking', async () => {
       await contract.timeLockedAction(from(alice))
       await time.increase(time.duration.days(2))
-      const releaseTime = (await contract.releaseTime(alice)).toNumber()
+      const releaseTime = (await contract.lockTimeRemaining(alice)).toNumber()
+
       expect(releaseTime).to.be.closeTo(time.duration.days(1).toNumber(), 3)
     })
 
     it('should return 0 if user has never been locked', async () => {
-      const releaseTime = (await contract.releaseTime(alice)).toNumber()
+      const releaseTime = (await contract.lockTimeRemaining(alice)).toNumber()
       expect(releaseTime).to.eq(0)
     })
 
     it('should return 0 if user has been unlocked', async () => {
       await contract.timeLockedAction(from(alice))
       await time.increase(time.duration.days(4))
-      const releaseTime = (await contract.releaseTime(alice)).toNumber()
+      const releaseTime = (await contract.lockTimeRemaining(alice)).toNumber()
 
       expect(releaseTime).to.eq(0)
     })
   })
 
   context('lock function', async () => {
+    let userLocking
     beforeEach(async () => {
-      await contract.lockUser(bob)
+      userLocking = await contract.lockUser(bob)
     })
 
     it('should lock user', async () => {
@@ -107,9 +141,19 @@ contract('TimeLock', ([alice, bob]) => {
     })
 
     it('should prevent user form performing time locked action', async () => {
-      await expectRevert(
+      await expectRevertCustomError(
+        TimeLock,
         contract.timeLockedAction(from(bob)),
-        'TimeLock: Account under timelock'
+        'LockedUser',
+        [bob]
+      )
+    })
+
+    it('should emit event on user lock time change', async () => {
+      expectEvent(
+        userLocking,
+        'UserLockTimeChanged',
+        { user: bob }
       )
     })
   })
