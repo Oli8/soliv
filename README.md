@@ -26,6 +26,7 @@ contract MyDapp is TimeLock {
 
 ### [Access](contracts/access/)
 - [TimeLock](contracts/access/TimeLock.sol)
+- [TimeLockGroups](contracts/access/TimeLockGroups.sol)
 
 ## Security
 
