@@ -13,7 +13,7 @@ $ npm install soliv
 Once installed, you can use the contracts by importing them:
 
 ```solidity
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "soliv/contracts/access/TimeLock.sol";
 
