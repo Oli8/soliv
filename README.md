@@ -15,7 +15,7 @@ Once installed, you can use the contracts by importing them:
 ```solidity
 pragma solidity ^0.8.18;
 
-import "soliv/contracts/access/TimeLock.sol";
+import {TimeLock} "soliv/contracts/access/TimeLock.sol";
 
 contract MyDapp is TimeLock {
     constructor() TimeLock(3 days) {}
